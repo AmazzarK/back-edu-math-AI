@@ -1,382 +1,714 @@
 # Educational Mathematics AI Platform - Backend
 
-A production-ready Flask backend for an educational platform supporting Students, Professors, and Administrators with comprehensive authentication, role-based access control, and user management.
+<div align="center">
 
-## 🚀 Quick Start
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
+![Flask](https://img.shields.io/badge/Flask-2.3.3-green.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg)
+![Redis](https://img.shields.io/badge/Redis-7+-red.svg)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-### 1. Install Dependencies
+*A comprehensive Flask-based backend system designed to revolutionize mathematics education through artificial intelligence integration.*
+
+[Features](#features) • [Quick Start](#quick-start) • [API Documentation](#api-documentation) • [Architecture](#architecture) • [Deployment](#deployment)
+
+</div>
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Quick Start](#quick-start)
+- [Architecture](#architecture)
+- [API Documentation](#api-documentation)
+- [Database Schema](#database-schema)
+- [Authentication & Security](#authentication--security)
+- [AI Integration](#ai-integration)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Overview
+
+The Educational Mathematics AI Platform is a production-ready Flask backend system that serves as the backbone for an interactive learning management system. It supports multiple user roles (Students, Professors, Administrators) and provides AI-powered educational assistance through OpenAI integration.
+
+### Target Users
+
+- **Students**: Complete exercises, receive AI tutoring, track learning progress
+- **Professors**: Create educational content, manage classes, monitor student performance
+- **Administrators**: Oversee system operations, manage users, access analytics
+
+### Key Capabilities
+
+- **AI-Powered Tutoring**: OpenAI GPT integration for personalized mathematics assistance
+- **Comprehensive Analytics**: Real-time progress tracking and performance insights
+- **Multi-Storage Support**: Local filesystem and AWS S3 integration
+- **Background Processing**: Celery-powered email notifications and analytics
+- **Production Ready**: Docker containerization with comprehensive security measures
+
+## Features
+
+### AI-Powered Education
+- **Intelligent Tutoring**: OpenAI GPT-3.5/GPT-4 integration for personalized math assistance
+- **Contextual Help**: AI responses tailored to current exercises and learning objectives
+- **Conversation Management**: Persistent chat history with educational context
+- **Adaptive Learning**: AI-driven difficulty adjustment based on performance
+
+### Multi-Role User Management
+- **Role-Based Access Control**: Student, Professor, and Administrator roles
+- **Secure Authentication**: JWT tokens with refresh mechanism and blacklisting
+- **Profile Management**: Comprehensive user profiles with preferences
+- **Email Verification**: Account activation and password reset functionality
+
+### Educational Content Management
+- **Exercise Creation**: Flexible exercise types (multiple choice, calculation, essay)
+- **Class Management**: Course creation, student enrollment, assignment distribution
+- **Progress Tracking**: Real-time performance monitoring and analytics
+- **File Upload System**: Secure file storage with local and AWS S3 support
+
+### Advanced Analytics
+- **Student Dashboard**: Personalized progress overview and recommendations
+- **Professor Insights**: Class performance analytics and student monitoring
+- **Admin Analytics**: System-wide statistics and user engagement metrics
+- **Real-time Metrics**: Live performance tracking and reporting
+
+### Enterprise Security
+- **JWT Authentication**: Secure token-based authentication with refresh tokens
+- **Role-Based Authorization**: Granular permission system
+- **Input Validation**: Comprehensive data validation with Marshmallow
+- **Security Headers**: CORS, CSP, and other security configurations
+
+### Performance & Scalability
+- **Background Tasks**: Celery integration for email and analytics processing
+- **Caching Strategy**: Redis-based caching for optimal performance
+- **Database Optimization**: PostgreSQL with proper indexing and relationships
+- **Docker Support**: Complete containerization for easy deployment
+
+## Technology Stack
+
+### Core Framework
+- **Flask 2.3.3**: Web framework with RESTful API support
+- **Flask-RESTful**: REST API development with resource-based routing
+- **Flask-JWT-Extended**: JWT authentication and authorization
+- **SQLAlchemy 2.0**: Modern ORM with relationship management
+
+### Database & Caching
+- **PostgreSQL 15+**: Primary relational database with JSONB support
+- **Redis 7**: Caching, session management, and task queue backend
+- **Flask-Migrate**: Database migration management
+
+### AI & External Services
+- **OpenAI API**: GPT-3.5/GPT-4 integration for educational assistance
+- **Celery 5.3**: Asynchronous task processing
+- **AWS S3**: Cloud file storage (optional)
+- **SMTP**: Email notification delivery
+
+### Development & Deployment
+- **Docker & Docker Compose**: Containerization and orchestration
+- **Gunicorn**: WSGI server for production deployment
+- **pytest**: Comprehensive testing framework
+- **Marshmallow**: Data validation and serialization
+
+## Quick Start
+
+### Prerequisites
+- **Python 3.11+**
+- **PostgreSQL 15+**
+- **Redis 7+**
+- **Docker** (optional, for containerized deployment)
+
+### 1. Environment Setup
+
 ```bash
+# Clone the repository
+git clone https://github.com/AmazzarK/back-edu-math-AI.git
+cd back-edu-math-AI
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Set Up Database
-```bash
-python seed.py
+### 2. Configuration
+
+Create a `.env` file in the root directory:
+
+```env
+# Flask Configuration
+FLASK_ENV=development
+FLASK_APP=run.py
+SECRET_KEY=your-super-secret-key-here
+
+# Database Configuration
+DATABASE_URL=postgresql://username:password@localhost:5432/edumath_ai
+
+# Redis Configuration
+REDIS_URL=redis://localhost:6379/0
+
+# JWT Configuration
+JWT_SECRET_KEY=your-jwt-secret-key-here
+JWT_ACCESS_TOKEN_EXPIRES=900  # 15 minutes
+JWT_REFRESH_TOKEN_EXPIRES=2592000  # 30 days
+
+# OpenAI Configuration
+OPENAI_API_KEY=your-openai-api-key-here
+
+# Email Configuration
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_USE_TLS=true
+
+# AWS S3 Configuration (Optional)
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+AWS_S3_BUCKET=your-bucket-name
+AWS_REGION=us-east-1
+
+# File Upload Configuration
+UPLOAD_FOLDER=uploads
+MAX_CONTENT_LENGTH=16777216  # 16MB
 ```
-
-### 3. Start the Server
-```bash
-python start.py
-```
-
-The server will start on `http://localhost:5000`
-
-## 🧪 Test Accounts
-
-| Role      | Email                     | Password      |
-|-----------|---------------------------|---------------|
-| Admin     | admin@eduplatform.com     | admin123      |
-| Professor | professor@eduplatform.com | professor123  |
-| Student   | student@eduplatform.com   | student123    |
-
-## 📚 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - User Registration
-- `POST /api/auth/login` - User Login
-- `GET /api/auth/profile` - Get User Profile (Protected)
-- `PUT /api/auth/profile` - Update User Profile (Protected)
-- `POST /api/auth/refresh` - Refresh JWT Token
-- `POST /api/auth/logout` - Logout User (Protected)
-- `POST /api/auth/forgot-password` - Request Password Reset
-- `POST /api/auth/reset-password` - Reset Password
-
-### Exercises
-- `GET /api/exercises` - List exercises with pagination and filters
-- `POST /api/exercises` - Create exercise (Professor/Admin only)
-- `GET /api/exercises/<id>` - Get specific exercise
-- `PUT /api/exercises/<id>` - Update exercise (Creator only)
-- `DELETE /api/exercises/<id>` - Delete exercise (Creator only)
-- `GET /api/exercises/by-professor/<professor_id>` - Get exercises by professor
-- `GET /api/exercises/by-subject/<subject>` - Get exercises by subject
-
-### Progress & Submissions
-- `POST /api/progress/start` - Start an exercise (Student only)
-- `POST /api/progress/submit` - Submit exercise answers (Student only)
-- `GET /api/progress/student/<student_id>` - Get student progress
-- `GET /api/progress/exercise/<exercise_id>` - Get exercise progress (Professor/Admin)
-
-### Analytics
-- `GET /api/analytics/student/<student_id>` - Student analytics
-- `GET /api/analytics/class` - Class-level analytics (Professor/Admin)
-- `GET /api/analytics/overview` - System overview (Admin only)
-
-## 🔧 Postman Testing
-
-### 1. User Registration
-```http
-POST http://localhost:5000/api/auth/register
-Content-Type: application/json
-
-{
-    "email": "newuser@example.com",
-    "password": "SecurePass123!",
-    "first_name": "John",
-    "last_name": "Doe",
-    "role": "student"
-}
-```
-
-### 2. User Login
-```http
-POST http://localhost:5000/api/auth/login
-Content-Type: application/json
-
-{
-    "email": "student@eduplatform.com",
-    "password": "Student123!"
-}
-```
-
-**Response includes:**
-```json
-{
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "user": {...}
-}
-```
-
-### 3. Create Exercise (Professor Only)
-```http
-POST http://localhost:5000/api/exercises
-Authorization: Bearer YOUR_PROFESSOR_ACCESS_TOKEN
-Content-Type: application/json
-
-{
-    "title": "Quadratic Equations",
-    "description": "Solving quadratic equations using the quadratic formula",
-    "difficulty": "medium",
-    "subject": "Algebra",
-    "type": "multiple_choice",
-    "questions": [
-        {
-            "text": "What are the solutions to x² - 5x + 6 = 0?",
-            "options": ["x = 2, 3", "x = 1, 6", "x = -2, -3", "x = 0, 5"]
-        }
-    ],
-    "solutions": [
-        {"correct_option": 0}
-    ],
-    "max_score": 100.0,
-    "time_limit": 30,
-    "is_published": true,
-    "tags": ["quadratic", "algebra", "factoring"]
-}
-```
-
-### 4. Get Exercises List (with filters)
-```http
-GET http://localhost:5000/api/exercises?difficulty=easy&subject=Mathematics&page=1&per_page=5
-```
-
-### 5. Start Exercise (Student Only)
-```http
-POST http://localhost:5000/api/progress/start
-Authorization: Bearer YOUR_STUDENT_ACCESS_TOKEN
-Content-Type: application/json
-
-{
-    "exercise_id": 1
-}
-```
-
-### 6. Submit Exercise Answers
-```http
-POST http://localhost:5000/api/progress/submit
-Authorization: Bearer YOUR_STUDENT_ACCESS_TOKEN
-Content-Type: application/json
-
-{
-    "exercise_id": 1,
-    "answers": [
-        {
-            "question_index": 0,
-            "selected_option": 1
-        },
-        {
-            "question_index": 1,
-            "selected_option": 2
-        }
-    ],
-    "time_spent": 180
-}
-```
-
-### 7. Get Student Analytics
-```http
-GET http://localhost:5000/api/analytics/student/STUDENT_ID
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-**Response includes:**
-```json
-{
-    "success": true,
-    "data": {
-        "summary": {
-            "total_exercises": 5,
-            "completed_exercises": 3,
-            "completion_rate": 60.0,
-            "average_score": 78.5
-        },
-        "subject_breakdown": {
-            "Mathematics": {
-                "total": 3,
-                "completed": 2,
-                "avg_score": 85.0
-            }
-        },
-        "performance_trend": [...]
-    }
-}
-```
-
-### 8. Get Class Analytics (Professor/Admin)
-```http
-GET http://localhost:5000/api/analytics/class?difficulty=medium&start_date=2025-01-01
-Authorization: Bearer YOUR_PROFESSOR_ACCESS_TOKEN
-```
-
-## 🏗 Architecture Overview
-
-```
-app/
-├── __init__.py           # App factory
-├── models.py            # Database models
-├── api/
-│   └── auth.py          # Authentication endpoints
-├── schemas/
-│   └── auth.py          # Marshmallow validation schemas
-├── services/
-│   ├── auth.py          # Authentication business logic
-│   └── email.py         # Email service (stub)
-├── utils/
-│   └── auth.py          # RBAC decorators
-└── extensions/
-    └── __init__.py      # Flask extensions
-```
-
-## 🔒 Security Features
-
-- **JWT Authentication** with access and refresh tokens
-- **Password Hashing** using bcrypt
-- **Role-Based Access Control** (Student, Professor, Admin)
-- **Rate Limiting** on authentication endpoints
-- **Input Validation** with Marshmallow schemas
-- **CORS Protection** for cross-origin requests
 
 ### 3. Database Setup
 
 ```bash
 # Initialize database
 flask db init
-
-# Create migration
 flask db migrate -m "Initial migration"
-
-# Apply migration
 flask db upgrade
 
-# Seed database with sample data
-python seed.py
+# Seed with sample data
+python db_manager.py seed
 ```
 
-### 4. Run the Application
+### 4. Start the Application
 
+#### Option A: Direct Python
 ```bash
-# Development server
 python run.py
-
-# Or using Flask CLI
-flask run
 ```
 
-The API will be available at `http://localhost:5000`
+#### Option B: Docker Compose (Recommended)
+```bash
+# Build and start all services
+docker-compose up --build
 
-## 📚 API Documentation
+# Run in background
+docker-compose up -d
+```
 
-Visit `http://localhost:5000/api/docs` for interactive Swagger documentation.
+The server will be available at `http://localhost:5000`
 
-## 🔐 Default Users (After Seeding)
-
-| Role      | Email                      | Password   |
-|-----------|----------------------------|------------|
-| Admin     | admin@eduplatform.com      | admin123   |
-| Professor | professor@eduplatform.com  | prof123    |
-| Student   | student@eduplatform.com    | student123 |
-
-## 🧱 Database Models
-
-### Core Models
-- **User**: Students, Professors, Admins with role-based access
-- **Course**: Professor-created courses
-- **Enrollment**: Student-course relationships
-- **Test**: Course assessments with questions
-- **Question**: MCQ, short answer, true/false questions
-- **Option**: Multiple choice options
-- **Answer**: Student test submissions
-- **Exercise**: Interactive learning content
-- **Badge**: Achievement system
-- **StudentBadge**: Earned achievements
-- **Intervention**: Professor notes on students
-- **ChatbotMessage**: AI chat conversations
-
-## 🔌 API Endpoints
-
-### Authentication
-- `POST /auth/register` - User registration
-- `POST /auth/login` - User login
-- `GET /auth/me` - Current user info
-
-### Courses
-- `GET /courses` - List courses (role-filtered)
-- `POST /courses` - Create course (Professor/Admin)
-- `GET /courses/<id>` - Course details
-- `PUT /courses/<id>` - Update course
-- `DELETE /courses/<id>` - Delete course
-- `POST /courses/<id>/enroll` - Student enrollment
-
-### Tests & Assessment
-- `GET /tests` - List tests
-- `POST /tests` - Create test (Professor/Admin)
-- `POST /tests/<id>/questions` - Add questions
-- `POST /tests/<id>/submit` - Submit answers (Student)
-- `GET /tests/<id>/results` - View results (Professor)
-
-### Exercises
-- `GET /exercises` - List exercises
-- `POST /exercises` - Create exercise (Professor/Admin)
-- `POST /exercises/<id>/submit` - Submit work (Student)
-
-### Achievements
-- `GET /badges` - List all badges
-- `POST /badges` - Create badge (Professor/Admin)
-- `POST /badges/assign` - Assign to student
-- `GET /badges/student/achievements` - Student's badges
-
-### Professor Tools
-- `GET /professor/students` - List enrolled students
-- `GET /professor/students/<id>` - Student progress
-- `POST /professor/interventions` - Add notes
-- `GET /professor/dashboard` - Dashboard stats
-
-### Admin Management
-- `GET /admin/users` - All users
-- `POST /admin/users` - Create user
-- `PUT /admin/users/<id>` - Update user
-- `DELETE /admin/users/<id>` - Delete user
-- `GET /admin/courses` - All courses
-- `GET /admin/stats` - System statistics
-
-### Chatbot
-- `POST /chatbot/messages` - Save chat message
-- `GET /chatbot/messages` - Chat history
-
-### Health
-- `GET /api/health` - System health check
-
-## 🧪 Testing
+### 5. Verify Installation
 
 ```bash
+# Health check
+curl http://localhost:5000/health
+
+# Test authentication
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@eduplatform.com", "password": "admin123"}'
+```
+
+## Architecture
+
+The platform follows a modern microservices-inspired architecture with clear separation of concerns:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Mobile App    │    │  Third-party    │
+│  (React/Vue)    │    │   (Flutter)     │    │  Integrations   │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          └──────────────────────┼──────────────────────┘
+                                 │
+                    ┌─────────────┴─────────────┐
+                    │      Flask API Gateway     │
+                    │   (Authentication & CORS)  │
+                    └─────────────┬─────────────┘
+                                 │
+    ┌────────────────────────────┼────────────────────────────┐
+    │                            │                            │
+┌───┴────┐              ┌────────┴────────┐              ┌────┴────┐
+│ Auth   │              │   Business      │              │  File   │
+│Service │              │    Logic        │              │ Storage │
+└───┬────┘              │   Services      │              └────┬────┘
+    │                   └────────┬────────┘                   │
+┌───┴────┐                       │                       ┌────┴────┐
+│  JWT   │              ┌────────┴────────┐              │AWS S3 / │
+│ Token  │              │   Database      │              │ Local   │
+│Manager │              │  (PostgreSQL)   │              │ Files   │
+└────────┘              └────────┬────────┘              └─────────┘
+                                 │
+                    ┌─────────────┴─────────────┐
+                    │     Background Tasks      │
+                    │    (Celery + Redis)       │
+                    └───────────────────────────┘
+```
+
+### Key Components
+
+#### API Layer (`/app/api/`)
+- **RESTful Endpoints**: Resource-based API design with Flask-RESTful
+- **Authentication**: JWT-based security with role-based access control
+- **Validation**: Marshmallow schemas for input validation and serialization
+
+#### Service Layer (`/app/services/`)
+- **Business Logic**: Centralized business rules and operations
+- **AI Integration**: OpenAI API communication and response processing
+- **File Management**: Multi-storage backend with validation and processing
+
+#### Data Layer (`/app/models.py`)
+- **ORM Models**: SQLAlchemy models with relationships and constraints
+- **Database Design**: Normalized schema with JSONB for flexible content
+- **Migration Management**: Flask-Migrate for version control
+
+#### Background Processing (`/app/tasks/`)
+- **Email Notifications**: Asynchronous email delivery with templates
+- **Analytics Processing**: Data aggregation and report generation
+- **Scheduled Tasks**: Periodic maintenance and cleanup operations
+
+## API Documentation
+
+### Test Accounts
+
+| Role      | Email                     | Password      | Capabilities |
+|-----------|---------------------------|---------------|--------------|
+| Admin     | admin@eduplatform.com     | admin123      | Full system access, user management, analytics |
+| Professor | professor@eduplatform.com | professor123  | Course creation, student monitoring, content management |
+| Student   | student@eduplatform.com   | student123    | Exercise completion, AI tutoring, progress tracking |
+
+### Authentication Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/auth/register` | Create new user account | No |
+| `POST` | `/api/auth/login` | Authenticate user credentials | No |
+| `GET` | `/api/auth/profile` | Get current user profile | Yes |
+| `PUT` | `/api/auth/profile` | Update user profile | Yes |
+| `POST` | `/api/auth/refresh` | Refresh JWT access token | Yes |
+| `POST` | `/api/auth/logout` | Invalidate user session | Yes |
+
+### Exercise Management
+
+| Method | Endpoint | Description | Role Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/exercises` | List exercises with filtering | Student+ |
+| `POST` | `/api/exercises` | Create new exercise | Professor+ |
+| `GET` | `/api/exercises/<id>` | Get exercise details | Student+ |
+| `PUT` | `/api/exercises/<id>` | Update exercise | Creator/Admin |
+| `DELETE` | `/api/exercises/<id>` | Delete exercise | Creator/Admin |
+| `POST` | `/api/exercises/<id>/submit` | Submit exercise answers | Student |
+
+### Class & Course Management
+
+| Method | Endpoint | Description | Role Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/classes` | List user's classes | Student+ |
+| `POST` | `/api/classes` | Create new class | Professor+ |
+| `GET` | `/api/classes/<id>` | Get class details | Enrolled/Professor |
+| `POST` | `/api/classes/<id>/enroll` | Enroll in class | Student |
+| `PUT` | `/api/classes/<id>` | Update class settings | Professor+ |
+
+### AI Chat Integration
+
+| Method | Endpoint | Description | Role Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/chat/message` | Send message to AI tutor | Student+ |
+| `GET` | `/api/chat/conversations` | Get conversation history | Student+ |
+| `GET` | `/api/chat/conversation/<id>` | Get specific conversation | Owner |
+| `DELETE` | `/api/chat/conversation/<id>` | Delete conversation | Owner |
+
+### Analytics & Progress
+
+| Method | Endpoint | Description | Role Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/dashboard/student` | Student dashboard data | Student |
+| `GET` | `/api/dashboard/professor` | Professor dashboard data | Professor |
+| `GET` | `/api/dashboard/admin` | Admin dashboard data | Admin |
+| `GET` | `/api/progress/student/<id>` | Student progress details | Self/Professor |
+| `GET` | `/api/progress/exercise/<id>` | Exercise analytics | Professor+ |
+
+### File Management
+
+| Method | Endpoint | Description | Role Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/files/upload` | Upload file to system | Student+ |
+| `GET` | `/api/files` | List user's files | Student+ |
+| `GET` | `/api/files/<id>` | Get file metadata | Owner/Authorized |
+| `GET` | `/api/files/<id>/download` | Download file content | Owner/Authorized |
+| `DELETE` | `/api/files/<id>` | Delete file | Owner/Admin |
+
+### Notification System
+
+| Method | Endpoint | Description | Role Required |
+|--------|----------|-------------|---------------|
+| `GET` | `/api/notifications` | Get user notifications | Student+ |
+| `POST` | `/api/notifications/send` | Send notifications | Professor+ |
+| `PUT` | `/api/notifications/<id>/read` | Mark as read | Recipient |
+
+### Example API Usage
+
+#### User Registration
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "newuser@example.com",
+    "password": "SecurePass123!",
+    "first_name": "John",
+    "last_name": "Doe",
+    "role": "student"
+  }'
+```
+
+#### User Login
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "student@eduplatform.com",
+    "password": "Student123!"
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "user": {
+    "id": "user-uuid",
+    "email": "student@eduplatform.com",
+    "role": "student",
+    "profile": {...}
+  }
+}
+```
+
+#### Create Exercise (Professor)
+```bash
+curl -X POST http://localhost:5000/api/exercises \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{
+    "title": "Linear Equations Practice",
+    "description": "Solve basic linear equations",
+    "subject": "Algebra",
+    "difficulty": "easy",
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "question": "Solve: 2x + 3 = 7",
+        "options": ["x = 1", "x = 2", "x = 3", "x = 4"],
+        "correct_answer": 1
+      }
+    ],
+    "max_score": 10
+  }'
+```
+
+#### AI Chat Message
+```bash
+curl -X POST http://localhost:5000/api/chat/message \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -d '{
+    "message": "Can you help me understand how to solve quadratic equations?",
+    "context": {
+      "current_exercise": "exercise-id",
+      "difficulty_level": "intermediate"
+    }
+  }'
+```
+
+## Database Schema
+
+### Core Tables
+
+#### Users
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('student', 'professor', 'admin')),
+    profile_data JSONB,
+    is_active BOOLEAN DEFAULT true,
+    email_confirmed BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+#### Exercises
+```sql
+CREATE TABLE exercises (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    subject VARCHAR(100),
+    difficulty VARCHAR(50) CHECK (difficulty IN ('easy', 'medium', 'hard')),
+    questions JSONB NOT NULL,
+    solutions JSONB,
+    max_score INTEGER,
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+#### Progress Tracking
+```sql
+CREATE TABLE progress (
+    id SERIAL PRIMARY KEY,
+    student_id UUID REFERENCES users(id),
+    exercise_id INTEGER REFERENCES exercises(id),
+    status VARCHAR(50) CHECK (status IN ('not_started', 'in_progress', 'completed')),
+    score INTEGER,
+    answers JSONB,
+    time_spent INTEGER,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP
+);
+```
+
+### Relationships
+- **Users ↔ Classes**: Many-to-many through enrollments
+- **Users ↔ Exercises**: One-to-many (professor creates exercises)
+- **Students ↔ Progress**: One-to-many (student attempts)
+- **Users ↔ Chat Conversations**: One-to-many (user conversations)
+
+## Authentication & Security
+
+### JWT Token Management
+- **Access Tokens**: 15-minute expiration for API access
+- **Refresh Tokens**: 30-day expiration for token renewal
+- **Token Blacklisting**: Immediate invalidation on logout
+- **Secure Headers**: Authorization: Bearer `<token>`
+
+### Role-Based Access Control
+```python
+@role_required('professor', 'admin')
+def create_exercise():
+    """Only professors and admins can create exercises"""
+    pass
+
+@role_required('student')
+def submit_answer():
+    """Only students can submit answers"""
+    pass
+```
+
+### Security Features
+- **Password Hashing**: bcrypt with salt rounds
+- **Input Validation**: Marshmallow schema validation
+- **SQL Injection Prevention**: SQLAlchemy ORM protection
+- **CORS Configuration**: Controlled cross-origin access
+- **Rate Limiting**: API endpoint protection
+- **Security Headers**: CSP, HSTS, X-Frame-Options
+
+## AI Integration
+
+### OpenAI Configuration
+```python
+# AI prompt engineering for educational responses
+SYSTEM_PROMPT = """
+You are an AI mathematics tutor. Provide step-by-step explanations,
+ask guiding questions, and encourage learning through discovery.
+Never give direct answers - guide students to solutions.
+"""
+```
+
+### Conversation Management
+- **Context Preservation**: Maintains conversation history
+- **Educational Focus**: Responses tailored to learning objectives
+- **Adaptive Difficulty**: Adjusts based on student progress
+- **Cost Optimization**: Intelligent model selection (GPT-3.5/GPT-4)
+
+### Response Enhancement
+- **Mathematical Notation**: LaTeX rendering support
+- **Interactive Elements**: Step-by-step breakdowns
+- **Related Exercises**: Automatic problem suggestions
+- **Progress Integration**: Connected to student learning path
+
+## Testing
+
+### Running Tests
+```bash
+# Install test dependencies
+pip install pytest pytest-flask pytest-cov
+
 # Run all tests
 pytest
 
 # Run with coverage
-pytest --cov=app
+pytest --cov=app --cov-report=html
 
 # Run specific test file
 pytest tests/test_auth.py
+
+# Run with verbose output
+pytest -v
 ```
 
-## 🔧 Role-Based Access Control
+### Test Structure
+```
+tests/
+├── conftest.py              # Test configuration and fixtures
+├── test_auth.py            # Authentication endpoint tests
+├── test_exercises.py       # Exercise management tests
+├── test_classes.py         # Class management tests
+├── test_chat.py           # AI chat integration tests
+├── test_files.py          # File upload/download tests
+└── test_analytics.py     # Analytics and dashboard tests
+```
 
-### Student Access
-- View enrolled courses and exercises
-- Take tests and submit answers
-- View personal achievements
-- Access chatbot
+### Sample Test
+```python
+def test_user_registration(client):
+    """Test user registration endpoint"""
+    response = client.post('/api/auth/register', json={
+        'email': 'test@example.com',
+        'password': 'TestPass123!',
+        'first_name': 'Test',
+        'last_name': 'User',
+        'role': 'student'
+    })
+    
+    assert response.status_code == 201
+    assert 'access_token' in response.json
+    assert response.json['user']['email'] == 'test@example.com'
+```
 
-### Professor Access
-- Create and manage courses
-- Create tests and exercises
-- View student progress and results
-- Add intervention notes
-- Assign badges to students
+## Deployment
 
-### Admin Access
-- Full system access
-- User management
-- Course oversight
-- System statistics
+### Docker Deployment (Recommended)
 
-## 🏗️ Project Structure
+#### Development Environment
+```bash
+# Clone and navigate to project
+git clone https://github.com/AmazzarK/back-edu-math-AI.git
+cd back-edu-math-AI
 
+# Build and start all services
+docker-compose up --build
+
+# Run in background
+docker-compose up -d
+
+# View logs
+docker-compose logs -f web
+```
+
+#### Production Environment
+```bash
+# Use production configuration
+docker-compose -f docker-compose.prod.yml up -d
+
+# Scale services
+docker-compose up -d --scale celery=3
+
+# Health check
+curl http://localhost:5000/health
+```
+
+### Cloud Deployment
+
+#### Render.com
+1. **Connect Repository**: Link your GitHub repository to Render
+2. **Environment Variables**: Set in Render dashboard
+3. **Build Command**: `pip install -r requirements.txt`
+4. **Start Command**: `gunicorn --bind 0.0.0.0:$PORT run:app`
+
+#### Railway.app
+1. **Connect Repository**: Import from GitHub
+2. **Auto-Detection**: Railway detects Flask automatically
+3. **Environment Variables**: Configure in dashboard
+4. **Automatic Deployment**: Deploys on git push
+
+#### AWS/Digital Ocean
+```bash
+# Deploy with Docker Swarm
+docker swarm init
+docker stack deploy -c docker-compose.prod.yml edumath
+
+# Or use Kubernetes
+kubectl apply -f k8s/
+```
+
+### Environment Variables
+
+#### Required Configuration
+```env
+# Flask
+FLASK_ENV=production
+SECRET_KEY=your-super-secret-key
+JWT_SECRET_KEY=your-jwt-secret
+
+# Database
+DATABASE_URL=postgresql://user:pass@host:port/dbname
+
+# Redis
+REDIS_URL=redis://localhost:6379/0
+
+# OpenAI
+OPENAI_API_KEY=sk-your-openai-key
+
+# Email
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_USE_TLS=true
+```
+
+#### Optional Configuration
+```env
+# AWS S3 (for file storage)
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_S3_BUCKET=your-bucket-name
+AWS_REGION=us-east-1
+
+# Performance
+UPLOAD_FOLDER=uploads
+MAX_CONTENT_LENGTH=16777216
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
+```
+
+### Health Monitoring
+```bash
+# Application health
+curl http://localhost:5000/health
+
+# Database connection
+curl http://localhost:5000/health/db
+
+# Redis connection
+curl http://localhost:5000/health/redis
+
+# Background tasks
+curl http://localhost:5000/health/celery
+```
+
+## Development
+
+### Project Structure
 ```
 edu-math-ai-back/
 ├── app/
-│   ├── __init__.py          # Flask app factory
-│   ├── models.py            # SQLAlchemy models
+│   ├── __init__.py           # Flask application factory
+│   ├── models.py             # SQLAlchemy models
 │   ├── routes/              # API endpoints
 │   │   ├── auth.py
 │   │   ├── courses.py
@@ -390,97 +722,52 @@ edu-math-ai-back/
 │   └── utils/
 │       ├── auth.py          # JWT & auth utilities
 │       └── validation.py    # Marshmallow schemas
-├── tests/                   # Unit tests
-├── migrations/              # Database migrations
-├── run.py                   # Application entry point
-├── seed.py                  # Database seeding
-├── requirements.txt         # Dependencies
-└── .env.example            # Environment template
+├── tests/                    # Test suite
+├── migrations/               # Database migrations
+├── docker-compose.yml        # Development containers
+├── docker-compose.prod.yml   # Production containers
+├── requirements.txt          # Python dependencies
+├── Dockerfile               # Container configuration
+└── run.py                   # Application entry point
 ```
 
-## 🚀 Deployment
+### Contributing Guidelines
 
-### Render Deployment
+1. **Fork the repository**
+2. **Create feature branch**: `git checkout -b feature/amazing-feature`
+3. **Write tests**: Ensure new features have test coverage
+4. **Follow coding standards**: Use Black formatter and flake8 linter
+5. **Commit changes**: `git commit -m 'Add amazing feature'`
+6. **Push to branch**: `git push origin feature/amazing-feature`
+7. **Open Pull Request**: Describe your changes clearly
 
-1. Connect your GitHub repository to Render
-2. Set environment variables in Render dashboard
-3. Use the following build command:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Start command:
-   ```bash
-   python run.py
-   ```
-
-### Railway Deployment
-
-1. Connect repository to Railway
-2. Set environment variables
-3. Railway will auto-detect Flask and deploy
-
-### Environment Variables for Production
-
-```env
-FLASK_ENV=production
-DATABASE_URL=your_neon_postgres_url
-JWT_SECRET=your_secure_jwt_secret
-PORT=5000
-```
-
-## 🔒 Security Features
-
-- JWT token authentication
-- bcrypt password hashing
-- Role-based access control
-- Input validation with Marshmallow
-- SQL injection prevention via SQLAlchemy ORM
-- CORS configuration for frontend integration
-
-## 🤝 Frontend Integration
-
-This backend is designed to work with a React + Tailwind frontend supporting:
-
-### Student Pages
-- **Achievements**: View earned badges and progress
-- **Exercises**: Interactive learning activities
-- **Tests**: Take assessments and view scores
-- **Profile**: Manage account settings
-
-### Professor Pages
-- **Dashboard**: Overview of courses and students
-- **Courses**: Manage course content
-- **Students**: Track student progress
-- **Tests**: Create and review assessments
-
-### Admin Pages
-- **Users**: Manage all system users
-- **Courses**: Oversee all courses
-- **Analytics**: System-wide statistics
-
-## 📈 Features
-
-- ✅ Complete user management with three roles
-- ✅ Course creation and enrollment system
-- ✅ Test creation with multiple question types
-- ✅ Interactive exercise system
-- ✅ Achievement/badge system
-- ✅ Professor intervention tracking
-- ✅ AI chatbot message storage
-- ✅ Comprehensive API documentation
-- ✅ Role-based security
-- ✅ Unit test coverage
-- ✅ Production-ready deployment configuration
-
-## 🆘 Troubleshooting
-
-### Database Connection Issues
-1. Verify Neon credentials in `.env`
-2. Ensure SSL mode is enabled
-3. Check firewall settings
-
-### Migration Errors
+### Code Quality Standards
 ```bash
+# Format code with Black
+black app/
+
+# Lint with flake8
+flake8 app/
+
+# Type checking with mypy
+mypy app/
+
+# Security scanning
+bandit -r app/
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Database Connection Errors
+```bash
+# Check PostgreSQL status
+sudo systemctl status postgresql
+
+# Test connection
+psql -h localhost -U username -d dbname
+
 # Reset migrations (development only)
 rm -rf migrations/
 flask db init
@@ -488,14 +775,109 @@ flask db migrate -m "Initial migration"
 flask db upgrade
 ```
 
-### Token Issues
-- Ensure JWT_SECRET is set and consistent
-- Check token expiration settings
-- Verify Authorization header format: `Bearer <token>`
+#### JWT Token Issues
+```bash
+# Verify token format
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:5000/api/auth/profile
 
-## 📝 License
+# Check token expiration
+python -c "import jwt; print(jwt.decode('YOUR_TOKEN', verify=False))"
+```
 
-This project is licensed under the MIT License.
-#   b a c k - e d u - m a t h - A I 
- 
- 
+#### Redis Connection Problems
+```bash
+# Test Redis connection
+redis-cli ping
+
+# Check Redis logs
+sudo journalctl -u redis
+
+# Restart Redis
+sudo systemctl restart redis
+```
+
+#### OpenAI API Issues
+```bash
+# Test API key
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+     https://api.openai.com/v1/models
+
+# Check rate limits and usage
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+     https://api.openai.com/v1/usage
+```
+
+### Performance Optimization
+
+#### Database Optimization
+```sql
+-- Add indexes for frequently queried columns
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_exercises_subject ON exercises(subject);
+CREATE INDEX idx_progress_student_id ON progress(student_id);
+```
+
+#### Caching Strategy
+```python
+# Cache expensive queries
+@cache.memoize(timeout=300)
+def get_student_analytics(student_id):
+    # Expensive analytics computation
+    pass
+```
+
+#### Background Task Monitoring
+```bash
+# Monitor Celery workers
+celery -A celery_app.celery inspect active
+
+# Worker statistics
+celery -A celery_app.celery inspect stats
+```
+
+## API Reference
+
+For comprehensive API documentation, visit:
+- **Local Development**: `http://localhost:5000/docs`
+- **Swagger UI**: Interactive API explorer with request/response examples
+- **Postman Collection**: Available in `docs/postman/` directory
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Areas for Contribution
+- **Bug Fixes**: Help us squash bugs
+- **New Features**: Add educational enhancements
+- **Documentation**: Improve docs and examples
+- **Testing**: Increase test coverage
+- **UI/UX**: Frontend integration improvements
+- **Performance**: Optimization opportunities
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- **OpenAI**: For providing the GPT models that power our AI tutoring
+- **Flask Community**: For the excellent web framework and extensions
+- **PostgreSQL Team**: For the robust database system
+- **Redis Team**: For the high-performance caching solution
+- **Contributors**: Everyone who has contributed to this project
+
+## Support
+
+- **GitHub Issues**: [Report bugs or request features](https://github.com/AmazzarK/back-edu-math-AI/issues)
+- **Documentation**: [Technical documentation](documentation.txt)
+- **Email**: contact@edumath-ai.com
+
+---
+
+<div align="center">
+
+**Made with care for mathematics education**
+
+[Star this repository](https://github.com/AmazzarK/back-edu-math-AI) if you find it helpful!
+
+</div>
