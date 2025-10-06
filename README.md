@@ -1,52 +1,150 @@
-# Educational Platform Backend
+# Educational Mathematics AI Platform - Backend
 
-A complete, production-ready Flask backend for an AI-assisted educational platform supporting Students, Professors, and Admins.
-
-## 🏗️ Tech Stack
-
-- **Framework**: Flask
-- **Database**: PostgreSQL (via Neon cloud)
-- **ORM**: SQLAlchemy
-- **Migrations**: Flask-Migrate (Alembic)
-- **Authentication**: JWT with role-based access control
-- **Password Security**: bcrypt
-- **Validation**: Marshmallow
-- **API Documentation**: Swagger/Flasgger
-- **Testing**: pytest
-- **CORS**: Flask-CORS
+A production-ready Flask backend for an educational platform supporting Students, Professors, and Administrators with comprehensive authentication, role-based access control, and user management.
 
 ## 🚀 Quick Start
 
-### 1. Environment Setup
-
+### 1. Install Dependencies
 ```bash
-# Clone and navigate to project
-cd edu-math-ai-back
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Environment Variables
-
-Create a `.env` file based on `.env.example`:
-
+### 2. Set Up Database
 ```bash
-cp .env.example .env
+python seed.py
 ```
 
-Update `.env` with your Neon database credentials:
-
-```env
-FLASK_ENV=development
-PORT=5000
-DATABASE_URL=postgresql+psycopg2://username:password@your-neon-host/dbname?sslmode=require
-JWT_SECRET=your_super_secret_jwt_key
+### 3. Start the Server
+```bash
+python start.py
 ```
+
+The server will start on `http://localhost:5000`
+
+## 🧪 Test Accounts
+
+| Role      | Email                     | Password      |
+|-----------|---------------------------|---------------|
+| Admin     | admin@eduplatform.com     | admin123      |
+| Professor | professor@eduplatform.com | professor123  |
+| Student   | student@eduplatform.com   | student123    |
+
+## 📚 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User Registration
+- `POST /api/auth/login` - User Login
+- `GET /api/auth/profile` - Get User Profile (Protected)
+- `PUT /api/auth/profile` - Update User Profile (Protected)
+- `POST /api/auth/refresh` - Refresh JWT Token
+- `POST /api/auth/logout` - Logout User (Protected)
+- `POST /api/auth/forgot-password` - Request Password Reset
+- `POST /api/auth/reset-password` - Reset Password
+
+## 🔧 Postman Testing
+
+### 1. User Registration
+```http
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "newuser@example.com",
+    "password": "SecurePass123!",
+    "first_name": "John",
+    "last_name": "Doe",
+    "role": "student"
+}
+```
+
+### 2. User Login
+```http
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "student@eduplatform.com",
+    "password": "student123"
+}
+```
+
+**Response includes:**
+```json
+{
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "user": {...}
+}
+```
+
+### 3. Get Profile (Protected)
+```http
+GET http://localhost:5000/api/auth/profile
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
+
+### 4. Update Profile (Protected)
+```http
+PUT http://localhost:5000/api/auth/profile
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+    "first_name": "Jane",
+    "last_name": "Smith",
+    "profile_data": {
+        "bio": "Mathematics enthusiast",
+        "preferences": {
+            "language": "en",
+            "notifications": true
+        }
+    }
+}
+```
+
+### 5. Password Reset Request
+```http
+POST http://localhost:5000/api/auth/forgot-password
+Content-Type: application/json
+
+{
+    "email": "student@eduplatform.com"
+}
+```
+
+### 6. Token Refresh
+```http
+POST http://localhost:5000/api/auth/refresh
+Authorization: Bearer YOUR_REFRESH_TOKEN
+```
+
+## 🏗 Architecture Overview
+
+```
+app/
+├── __init__.py           # App factory
+├── models.py            # Database models
+├── api/
+│   └── auth.py          # Authentication endpoints
+├── schemas/
+│   └── auth.py          # Marshmallow validation schemas
+├── services/
+│   ├── auth.py          # Authentication business logic
+│   └── email.py         # Email service (stub)
+├── utils/
+│   └── auth.py          # RBAC decorators
+└── extensions/
+    └── __init__.py      # Flask extensions
+```
+
+## 🔒 Security Features
+
+- **JWT Authentication** with access and refresh tokens
+- **Password Hashing** using bcrypt
+- **Role-Based Access Control** (Student, Professor, Admin)
+- **Rate Limiting** on authentication endpoints
+- **Input Validation** with Marshmallow schemas
+- **CORS Protection** for cross-origin requests
 
 ### 3. Database Setup
 
@@ -318,5 +416,6 @@ flask db upgrade
 ## 📝 License
 
 This project is licensed under the MIT License.
-#   b a c k - e d u - m a t h - A I  
+#   b a c k - e d u - m a t h - A I 
+ 
  

@@ -1,6 +1,10 @@
-from app import create_app, db
-from app.models import User, Course, Badge
-from app.utils.auth import hash_password
+"""
+Enhanced database seeding script for Educational Mathematics AI Platform.
+Creates sample users with the new User model structure.
+"""
+from app import create_app
+from app.extensions import db
+from app.models import User
 import uuid
 
 def seed_database():
@@ -16,79 +20,134 @@ def seed_database():
             print("Database already seeded!")
             return
         
+        print("Seeding database with sample data...")
+        
         # Create admin user
         admin = User(
-            id=uuid.uuid4(),
-            full_name="System Administrator",
             email="admin@eduplatform.com",
-            password_hash=hash_password("admin123"),
-            role="admin"
+            role="admin",
+            profile_data={
+                'first_name': 'System',
+                'last_name': 'Administrator',
+                'phone': '+1234567890',
+                'bio': 'System administrator for the Educational Mathematics AI Platform',
+                'avatar_url': 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+                'preferences': {
+                    'language': 'en',
+                    'timezone': 'UTC',
+                    'email_notifications': True
+                }
+            },
+            is_active=True,
+            email_confirmed=True
         )
+        admin.set_password("Admin123!")
         
         # Create professor user
         professor = User(
-            id=uuid.uuid4(),
-            full_name="Dr. Jane Smith",
             email="professor@eduplatform.com",
-            password_hash=hash_password("prof123"),
-            role="professor"
+            role="professor",
+            profile_data={
+                'first_name': 'Dr. Jane',
+                'last_name': 'Smith',
+                'phone': '+1234567891',
+                'bio': 'Mathematics professor with 10+ years of experience in educational technology',
+                'avatar_url': 'https://api.dicebear.com/7.x/avataaars/svg?seed=professor',
+                'preferences': {
+                    'language': 'en',
+                    'timezone': 'EST',
+                    'email_notifications': True
+                }
+            },
+            is_active=True,
+            email_confirmed=True
         )
+        professor.set_password("Prof123!")
         
         # Create student user
         student = User(
-            id=uuid.uuid4(),
-            full_name="John Doe",
             email="student@eduplatform.com",
-            password_hash=hash_password("student123"),
-            role="student"
+            role="student",
+            profile_data={
+                'first_name': 'John',
+                'last_name': 'Doe',
+                'phone': '+1234567892',
+                'bio': 'Enthusiastic mathematics student passionate about AI and technology',
+                'avatar_url': 'https://api.dicebear.com/7.x/avataaars/svg?seed=student',
+                'preferences': {
+                    'language': 'en',
+                    'timezone': 'PST',
+                    'email_notifications': False
+                }
+            },
+            is_active=True,
+            email_confirmed=True
         )
+        student.set_password("Student123!")
+        
+        # Create additional test users
+        test_student = User(
+            email="teststudent@eduplatform.com",
+            role="student",
+            profile_data={
+                'first_name': 'Alice',
+                'last_name': 'Johnson',
+                'phone': '',
+                'bio': 'Test student account for development and testing',
+                'avatar_url': 'https://api.dicebear.com/7.x/avataaars/svg?seed=teststudent',
+                'preferences': {
+                    'language': 'en',
+                    'timezone': 'UTC',
+                    'email_notifications': True
+                }
+            },
+            is_active=True,
+            email_confirmed=False  # For testing email confirmation flow
+        )
+        test_student.set_password("Test123!")
+        
+        test_professor = User(
+            email="testprof@eduplatform.com",
+            role="professor",
+            profile_data={
+                'first_name': 'Dr. Bob',
+                'last_name': 'Wilson',
+                'phone': '+1987654321',
+                'bio': 'Test professor account for development and testing',
+                'avatar_url': 'https://api.dicebear.com/7.x/avataaars/svg?seed=testprof',
+                'preferences': {
+                    'language': 'en',
+                    'timezone': 'UTC',
+                    'email_notifications': True
+                }
+            },
+            is_active=True,
+            email_confirmed=True
+        )
+        test_professor.set_password("TestProf123!")
         
         # Add users to session
-        db.session.add(admin)
-        db.session.add(professor)
-        db.session.add(student)
-        
-        # Commit users first to get their IDs
-        db.session.commit()
-        
-        # Create a sample course
-        course = Course(
-            title="Introduction to Mathematics",
-            description="Basic mathematical concepts and problem-solving techniques",
-            professor_id=professor.id
-        )
-        
-        db.session.add(course)
-        
-        # Create sample badges
-        badges = [
-            Badge(
-                name="First Steps",
-                description="Completed your first exercise",
-                icon_url="https://example.com/icons/first-steps.png"
-            ),
-            Badge(
-                name="Quiz Master",
-                description="Scored 100% on a test",
-                icon_url="https://example.com/icons/quiz-master.png"
-            ),
-            Badge(
-                name="Consistent Learner",
-                description="Completed exercises for 7 days straight",
-                icon_url="https://example.com/icons/consistent-learner.png"
-            )
-        ]
-        
-        for badge in badges:
-            db.session.add(badge)
+        users = [admin, professor, student, test_student, test_professor]
+        for user in users:
+            db.session.add(user)
         
         # Commit all changes
         db.session.commit()
         
-        print("Database seeded successfully!")
-        print(f"Admin: admin@eduplatform.com / admin123")
-        print(f"Professor: professor@eduplatform.com / prof123")
-        print(f"Student: student@eduplatform.com / student123")
+        print("✅ Database seeded successfully!")
+        print("\n🔑 Default User Accounts:")
+        print("=" * 50)
+        print(f"Admin:          admin@eduplatform.com / Admin123!")
+        print(f"Professor:      professor@eduplatform.com / Prof123!")
+        print(f"Student:        student@eduplatform.com / Student123!")
+        print(f"Test Student:   teststudent@eduplatform.com / Test123!")
+        print(f"Test Professor: testprof@eduplatform.com / TestProf123!")
+        print("=" * 50)
+        print("\n🚀 You can now:")
+        print("1. Start the server: python run.py")
+        print("2. Test the API at: http://localhost:5000")
+        print("3. View API docs at: http://localhost:5000/api/docs")
+        print("4. Test endpoints with the accounts above")
 
 if __name__ == '__main__':
     seed_database()

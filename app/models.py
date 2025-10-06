@@ -1,18 +1,33 @@
 import uuid
 from datetime import datetime
 from sqlalchemy.dialects.postgresql import UUID, JSONB
-from app import db
+from app.extensions import db
+import bcrypt
 
 class User(db.Model):
     __tablename__ = 'users'
     
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    full_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.Enum('student', 'professor', 'admin', name='user_roles'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    role = db.Column(db.Enum('student', 'professor', 'admin', name='user_roles'), nullable=False, default='student')
+    profile_data = db.Column(JSONB, nullable=False, default=lambda: {
+        'first_name': '',
+        'last_name': '',
+        'phone': '',
+        'bio': '',
+        'avatar_url': '',
+        'preferences': {
+            'language': 'en',
+            'timezone': 'UTC',
+            'email_notifications': True
+        }
+    })
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    email_confirmed = db.Column(db.Boolean, default=False, nullable=False)
+    last_login = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # Relationships
     courses_taught = db.relationship('Course', backref='professor', lazy=True, cascade='all, delete-orphan')
@@ -23,15 +38,83 @@ class User(db.Model):
     interventions_given = db.relationship('Intervention', foreign_keys='Intervention.professor_id', backref='professor', lazy=True, cascade='all, delete-orphan')
     interventions_received = db.relationship('Intervention', foreign_keys='Intervention.student_id', backref='student_target', lazy=True, cascade='all, delete-orphan')
     
-    def to_dict(self):
-        return {
+    def __init__(self, **kwargs):
+        """Initialize user with default profile data."""
+        super(User, self).__init__(**kwargs)
+        if not self.profile_data:
+            self.profile_data = {
+                'first_name': '',
+                'last_name': '',
+                'phone': '',
+                'bio': '',
+                'avatar_url': '',
+                'preferences': {
+                    'language': 'en',
+                    'timezone': 'UTC',
+                    'email_notifications': True
+                }
+            }
+    
+    def set_password(self, password):
+        """Hash and set password."""
+        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    def check_password(self, password):
+        """Check password against hash."""
+        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
+    
+    def update_last_login(self):
+        """Update last login timestamp."""
+        self.last_login = datetime.utcnow()
+        db.session.commit()
+    
+    @property
+    def full_name(self):
+        """Get full name from profile data."""
+        first_name = self.profile_data.get('first_name', '')
+        last_name = self.profile_data.get('last_name', '')
+        return f"{first_name} {last_name}".strip() or self.email.split('@')[0]
+    
+    def update_profile(self, data):
+        """Update profile data."""
+        if not self.profile_data:
+            self.profile_data = {}
+        
+        # Update profile fields
+        for key, value in data.items():
+            if key in ['first_name', 'last_name', 'phone', 'bio', 'avatar_url']:
+                self.profile_data[key] = value
+            elif key == 'preferences' and isinstance(value, dict):
+                if 'preferences' not in self.profile_data:
+                    self.profile_data['preferences'] = {}
+                self.profile_data['preferences'].update(value)
+        
+        # Mark as modified for JSONB
+        db.session.merge(self)
+        self.updated_at = datetime.utcnow()
+    
+    def to_dict(self, include_sensitive=False):
+        """Convert to dictionary."""
+        data = {
             'id': str(self.id),
-            'full_name': self.full_name,
             'email': self.email,
             'role': self.role,
+            'profile_data': self.profile_data or {},
+            'is_active': self.is_active,
+            'email_confirmed': self.email_confirmed,
+            'last_login': self.last_login.isoformat() if self.last_login else None,
             'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
+            'updated_at': self.updated_at.isoformat(),
+            'full_name': self.full_name
         }
+        
+        if include_sensitive:
+            data['password_hash'] = self.password_hash
+        
+        return data
+    
+    def __repr__(self):
+        return f'<User {self.email}>'
 
 class Course(db.Model):
     __tablename__ = 'courses'
