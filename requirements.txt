@@ -1,25 +1,59 @@
-flask
-flask-restful
-flask-jwt-extended
-flask_sqlalchemy
-flask_migrate
-flask_cors
-flask-limiter
-python-dotenv
-bcrypt
-psycopg2-binary
-marshmallow
-marshmallow-sqlalchemy
-pytest
-flasgger
-redis
-email-validator
-flask-mail
-flask-caching
-openai
-celery
-redis
-pillow
-boto3
-python-multipart
-werkzeug
+# Core Flask framework
+Flask==2.3.3
+Flask-RESTful==0.3.10
+Flask-JWT-Extended==4.5.3
+Flask-SQLAlchemy==3.0.5
+Flask-Migrate==4.0.5
+Flask-CORS==4.0.0
+Flask-Limiter==3.5.0
+Flask-Mail==0.9.1
+Flask-Caching==2.1.0
+
+# Database
+psycopg2-binary==2.9.7
+SQLAlchemy==2.0.21
+
+# Security & Authentication
+bcrypt==4.0.1
+PyJWT==2.8.0
+
+# Environment & Configuration
+python-dotenv==1.0.0
+
+# Data Validation
+marshmallow==3.20.1
+marshmallow-sqlalchemy==0.29.0
+email-validator==2.0.0
+
+# Task Queue & Caching
+celery==5.3.2
+redis==5.0.0
+
+# AI Integration
+openai==0.28.1
+
+# File Upload & Processing
+Pillow==10.0.1
+boto3==1.28.57
+python-multipart==0.0.6
+
+# Web Server
+Werkzeug==2.3.7
+gunicorn==21.2.0
+
+# API Documentation
+flasgger==0.9.7.1
+
+# Testing
+pytest==7.4.2
+pytest-flask==1.2.0
+coverage==7.3.2
+
+# Code Quality
+flake8==6.1.0
+pylint==2.17.5
+bandit==1.7.5
+
+# Development Tools
+python-dateutil==2.8.2
+requests==2.31.0
