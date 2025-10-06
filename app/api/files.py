@@ -1,7 +1,7 @@
 """
 File upload API endpoints for handling file operations.
 """
-from flask import request, jsonify, send_file
+from flask import request, jsonify, send_file, current_app
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
@@ -11,7 +11,6 @@ import logging
 from app.services.file_upload import FileUploadService
 from app.models import User
 from app.utils.decorators import handle_exceptions, role_required
-from app.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -247,7 +246,7 @@ class FileDownloadResource(Resource):
                 })
             
             # For local files, serve the file directly
-            upload_dir = getattr(Config, 'UPLOAD_FOLDER', 'uploads')
+            upload_dir = current_app.config.get('UPLOAD_FOLDER', 'uploads')
             file_path = os.path.join(upload_dir, uploaded_file.file_path)
             
             if not os.path.exists(file_path):

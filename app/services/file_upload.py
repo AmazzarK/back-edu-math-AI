@@ -13,10 +13,11 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError
+from flask import current_app
+from sqlalchemy import and_, desc
 from app.extensions import db
 from app.models import UploadedFile, User
 from app.services.base import BaseService
-from app.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +54,9 @@ class FileUploadService(BaseService):
     def _init_s3(self):
         """Initialize S3 client if configured."""
         try:
-            aws_access_key = getattr(Config, 'AWS_ACCESS_KEY_ID', None)
-            aws_secret_key = getattr(Config, 'AWS_SECRET_ACCESS_KEY', None)
-            aws_region = getattr(Config, 'AWS_REGION', 'us-east-1')
+            aws_access_key = current_app.config.get('AWS_ACCESS_KEY_ID')
+            aws_secret_key = current_app.config.get('AWS_SECRET_ACCESS_KEY')
+            aws_region = current_app.config.get('AWS_REGION', 'us-east-1')
             
             if aws_access_key and aws_secret_key:
                 self.s3_client = boto3.client(
@@ -72,7 +73,7 @@ class FileUploadService(BaseService):
     
     def _ensure_upload_directory(self):
         """Ensure upload directory exists."""
-        upload_dir = getattr(Config, 'UPLOAD_FOLDER', 'uploads')
+        upload_dir = current_app.config.get('UPLOAD_FOLDER', 'uploads')
         if not os.path.exists(upload_dir):
             os.makedirs(upload_dir, exist_ok=True)
             logger.info(f"Created upload directory: {upload_dir}")
@@ -137,7 +138,7 @@ class FileUploadService(BaseService):
     
     def _save_to_local(self, file_content: bytes, filename: str) -> str:
         """Save file to local storage."""
-        upload_dir = getattr(Config, 'UPLOAD_FOLDER', 'uploads')
+        upload_dir = current_app.config.get('UPLOAD_FOLDER', 'uploads')
         
         # Create subdirectories by date
         date_dir = datetime.utcnow().strftime('%Y/%m/%d')
@@ -156,7 +157,7 @@ class FileUploadService(BaseService):
         if not self.s3_client:
             raise Exception("S3 not configured")
         
-        bucket_name = getattr(Config, 'S3_BUCKET_NAME', None)
+        bucket_name = current_app.config.get('S3_BUCKET_NAME')
         if not bucket_name:
             raise Exception("S3 bucket not configured")
         
@@ -313,7 +314,7 @@ class FileUploadService(BaseService):
             
             if uploaded_file.storage_type == 's3' and self.s3_client:
                 # Generate presigned URL for S3
-                bucket_name = getattr(Config, 'S3_BUCKET_NAME', None)
+                bucket_name = current_app.config.get('S3_BUCKET_NAME')
                 if bucket_name:
                     try:
                         url = self.s3_client.generate_presigned_url(
@@ -327,7 +328,7 @@ class FileUploadService(BaseService):
                         raise Exception("Failed to generate file URL")
             
             # Return local file URL
-            base_url = getattr(Config, 'BASE_URL', 'http://localhost:5000')
+            base_url = current_app.config.get('BASE_URL', 'http://localhost:5000')
             return f"{base_url}/api/files/{file_id}/download"
             
         except Exception as e:
@@ -358,7 +359,7 @@ class FileUploadService(BaseService):
             
             # Delete from storage
             if uploaded_file.storage_type == 's3' and self.s3_client:
-                bucket_name = getattr(Config, 'S3_BUCKET_NAME', None)
+                bucket_name = current_app.config.get('S3_BUCKET_NAME')
                 if bucket_name:
                     try:
                         self.s3_client.delete_object(
@@ -369,7 +370,7 @@ class FileUploadService(BaseService):
                         logger.warning(f"Failed to delete from S3: {str(e)}")
             else:
                 # Delete from local storage
-                upload_dir = getattr(Config, 'UPLOAD_FOLDER', 'uploads')
+                upload_dir = current_app.config.get('UPLOAD_FOLDER', 'uploads')
                 full_path = os.path.join(upload_dir, uploaded_file.file_path)
                 if os.path.exists(full_path):
                     os.remove(full_path)

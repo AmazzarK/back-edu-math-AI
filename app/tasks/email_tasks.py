@@ -8,7 +8,6 @@ from flask import current_app
 from flask_mail import Message
 from app.extensions import mail
 from app.models import Notification, User
-from app.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +16,8 @@ def create_celery_app(app=None):
     """Create and configure Celery app."""
     celery = Celery(
         app.import_name if app else 'edu-math-ai',
-        backend=getattr(Config, 'CELERY_RESULT_BACKEND', 'redis://localhost:6379/0'),
-        broker=getattr(Config, 'CELERY_BROKER_URL', 'redis://localhost:6379/0')
+        backend='redis://localhost:6379/0',
+        broker='redis://localhost:6379/0'
     )
     
     if app:
@@ -85,7 +84,7 @@ def send_notification_email(self, notification_id: int):
             subject=subject,
             recipients=[user.email],
             html=email_body,
-            sender=getattr(Config, 'MAIL_DEFAULT_SENDER', 'noreply@edumath-ai.com')
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@edumath-ai.com')
         )
         
         mail.send(msg)
@@ -158,7 +157,7 @@ def send_welcome_email(user_id: str):
             subject=subject,
             recipients=[user.email],
             html=email_body,
-            sender=getattr(Config, 'MAIL_DEFAULT_SENDER', 'noreply@edumath-ai.com')
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@edumath-ai.com')
         )
         
         mail.send(msg)
@@ -233,7 +232,7 @@ def send_weekly_progress_report(user_id: str):
             subject=subject,
             recipients=[user.email],
             html=email_body,
-            sender=getattr(Config, 'MAIL_DEFAULT_SENDER', 'noreply@edumath-ai.com')
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@edumath-ai.com')
         )
         
         mail.send(msg)
@@ -595,7 +594,7 @@ def create_progress_report_email(user: User, dashboard_data: Dict) -> str:
 
 def get_app_url() -> str:
     """Get the application base URL."""
-    return getattr(Config, 'APP_URL', 'http://localhost:3000')
+    return current_app.config.get('APP_URL', 'http://localhost:3000')
 
 
 # Periodic task schedule (this would be configured in your Celery beat schedule)
