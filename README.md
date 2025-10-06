@@ -41,6 +41,26 @@ The server will start on `http://localhost:5000`
 - `POST /api/auth/forgot-password` - Request Password Reset
 - `POST /api/auth/reset-password` - Reset Password
 
+### Exercises
+- `GET /api/exercises` - List exercises with pagination and filters
+- `POST /api/exercises` - Create exercise (Professor/Admin only)
+- `GET /api/exercises/<id>` - Get specific exercise
+- `PUT /api/exercises/<id>` - Update exercise (Creator only)
+- `DELETE /api/exercises/<id>` - Delete exercise (Creator only)
+- `GET /api/exercises/by-professor/<professor_id>` - Get exercises by professor
+- `GET /api/exercises/by-subject/<subject>` - Get exercises by subject
+
+### Progress & Submissions
+- `POST /api/progress/start` - Start an exercise (Student only)
+- `POST /api/progress/submit` - Submit exercise answers (Student only)
+- `GET /api/progress/student/<student_id>` - Get student progress
+- `GET /api/progress/exercise/<exercise_id>` - Get exercise progress (Professor/Admin)
+
+### Analytics
+- `GET /api/analytics/student/<student_id>` - Student analytics
+- `GET /api/analytics/class` - Class-level analytics (Professor/Admin)
+- `GET /api/analytics/overview` - System overview (Admin only)
+
 ## 🔧 Postman Testing
 
 ### 1. User Registration
@@ -64,7 +84,7 @@ Content-Type: application/json
 
 {
     "email": "student@eduplatform.com",
-    "password": "student123"
+    "password": "Student123!"
 }
 ```
 
@@ -77,45 +97,105 @@ Content-Type: application/json
 }
 ```
 
-### 3. Get Profile (Protected)
+### 3. Create Exercise (Professor Only)
 ```http
-GET http://localhost:5000/api/auth/profile
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-### 4. Update Profile (Protected)
-```http
-PUT http://localhost:5000/api/auth/profile
-Authorization: Bearer YOUR_ACCESS_TOKEN
+POST http://localhost:5000/api/exercises
+Authorization: Bearer YOUR_PROFESSOR_ACCESS_TOKEN
 Content-Type: application/json
 
 {
-    "first_name": "Jane",
-    "last_name": "Smith",
-    "profile_data": {
-        "bio": "Mathematics enthusiast",
-        "preferences": {
-            "language": "en",
-            "notifications": true
+    "title": "Quadratic Equations",
+    "description": "Solving quadratic equations using the quadratic formula",
+    "difficulty": "medium",
+    "subject": "Algebra",
+    "type": "multiple_choice",
+    "questions": [
+        {
+            "text": "What are the solutions to x² - 5x + 6 = 0?",
+            "options": ["x = 2, 3", "x = 1, 6", "x = -2, -3", "x = 0, 5"]
         }
+    ],
+    "solutions": [
+        {"correct_option": 0}
+    ],
+    "max_score": 100.0,
+    "time_limit": 30,
+    "is_published": true,
+    "tags": ["quadratic", "algebra", "factoring"]
+}
+```
+
+### 4. Get Exercises List (with filters)
+```http
+GET http://localhost:5000/api/exercises?difficulty=easy&subject=Mathematics&page=1&per_page=5
+```
+
+### 5. Start Exercise (Student Only)
+```http
+POST http://localhost:5000/api/progress/start
+Authorization: Bearer YOUR_STUDENT_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+    "exercise_id": 1
+}
+```
+
+### 6. Submit Exercise Answers
+```http
+POST http://localhost:5000/api/progress/submit
+Authorization: Bearer YOUR_STUDENT_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+    "exercise_id": 1,
+    "answers": [
+        {
+            "question_index": 0,
+            "selected_option": 1
+        },
+        {
+            "question_index": 1,
+            "selected_option": 2
+        }
+    ],
+    "time_spent": 180
+}
+```
+
+### 7. Get Student Analytics
+```http
+GET http://localhost:5000/api/analytics/student/STUDENT_ID
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
+
+**Response includes:**
+```json
+{
+    "success": true,
+    "data": {
+        "summary": {
+            "total_exercises": 5,
+            "completed_exercises": 3,
+            "completion_rate": 60.0,
+            "average_score": 78.5
+        },
+        "subject_breakdown": {
+            "Mathematics": {
+                "total": 3,
+                "completed": 2,
+                "avg_score": 85.0
+            }
+        },
+        "performance_trend": [...]
     }
 }
 ```
 
-### 5. Password Reset Request
+### 8. Get Class Analytics (Professor/Admin)
 ```http
-POST http://localhost:5000/api/auth/forgot-password
-Content-Type: application/json
-
-{
-    "email": "student@eduplatform.com"
-}
-```
-
-### 6. Token Refresh
-```http
-POST http://localhost:5000/api/auth/refresh
-Authorization: Bearer YOUR_REFRESH_TOKEN
+GET http://localhost:5000/api/analytics/class?difficulty=medium&start_date=2025-01-01
+Authorization: Bearer YOUR_PROFESSOR_ACCESS_TOKEN
 ```
 
 ## 🏗 Architecture Overview

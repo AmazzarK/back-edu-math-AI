@@ -15,3 +15,11 @@ flasgger
 redis
 email-validator
 flask-mail
+flask-caching
+openai
+celery
+redis
+pillow
+boto3
+python-multipart
+werkzeug

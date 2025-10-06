@@ -70,9 +70,34 @@ def configure_app(app, config_name=None):
     app.config['CORS_ALLOW_HEADERS'] = ['Content-Type', 'Authorization']
     app.config['CORS_METHODS'] = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
     
-    # Rate Limiting Configuration
-    app.config['RATELIMIT_STORAGE_URL'] = os.getenv('REDIS_URL', 'memory://')
+    # Redis Configuration for caching and Celery
+    app.config['REDIS_URL'] = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    app.config['RATELIMIT_STORAGE_URL'] = app.config['REDIS_URL']
     app.config['RATELIMIT_DEFAULT'] = '1000 per hour'
+    
+    # Celery Configuration
+    app.config['CELERY_BROKER_URL'] = os.getenv('CELERY_BROKER_URL', app.config['REDIS_URL'])
+    app.config['CELERY_RESULT_BACKEND'] = os.getenv('CELERY_RESULT_BACKEND', app.config['REDIS_URL'])
+    
+    # OpenAI Configuration
+    app.config['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
+    app.config['OPENAI_MODEL'] = os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo')
+    app.config['OPENAI_MAX_TOKENS'] = int(os.getenv('OPENAI_MAX_TOKENS', 1000))
+    app.config['OPENAI_TEMPERATURE'] = float(os.getenv('OPENAI_TEMPERATURE', 0.7))
+    
+    # File Upload Configuration
+    app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'uploads')
+    app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 100 * 1024 * 1024))  # 100MB
+    
+    # AWS S3 Configuration (optional)
+    app.config['AWS_ACCESS_KEY_ID'] = os.getenv('AWS_ACCESS_KEY_ID')
+    app.config['AWS_SECRET_ACCESS_KEY'] = os.getenv('AWS_SECRET_ACCESS_KEY')
+    app.config['AWS_REGION'] = os.getenv('AWS_REGION', 'us-east-1')
+    app.config['S3_BUCKET_NAME'] = os.getenv('S3_BUCKET_NAME')
+    
+    # Application URLs
+    app.config['APP_URL'] = os.getenv('APP_URL', 'http://localhost:3000')
+    app.config['API_URL'] = os.getenv('API_URL', 'http://localhost:5000')
     
     # Email Configuration
     app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'localhost')
@@ -99,10 +124,41 @@ def configure_app(app, config_name=None):
         app.config['SQLALCHEMY_ECHO'] = False
 
 def register_blueprints(app):
-    """Register Flask blueprints."""
+    """Register Flask blueprints and API routes."""
+    from flask_restful import Api
+    
+    # Initialize Flask-RESTful
+    api = Api(app)
+    
     # Authentication API
     from app.api.auth import auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    
+    # Exercises and Analytics API
+    from app.api.exercises import exercises_bp
+    app.register_blueprint(exercises_bp, url_prefix='/api')
+    
+    # Register new API endpoints with Flask-RESTful
+    
+    # Chat API endpoints
+    from app.api.chat import register_chat_routes
+    register_chat_routes(api)
+    
+    # Class management API endpoints
+    from app.api.classes import register_class_routes
+    register_class_routes(api)
+    
+    # Dashboard API endpoints
+    from app.api.dashboard import register_dashboard_routes
+    register_dashboard_routes(api)
+    
+    # File management API endpoints
+    from app.api.files import register_file_routes
+    register_file_routes(api)
+    
+    # Notification API endpoints
+    from app.api.notifications import register_notification_routes
+    register_notification_routes(api)
     
     # Health check endpoint
     @app.route('/health')
@@ -111,7 +167,7 @@ def register_blueprints(app):
         return jsonify({
             'status': 'healthy',
             'message': 'Educational Mathematics AI Platform API is running',
-            'version': '2.0.0'
+            'version': '3.0.0'
         }), 200
     
     # API info endpoint
@@ -120,13 +176,28 @@ def register_blueprints(app):
         """API information endpoint."""
         return jsonify({
             'name': 'Educational Mathematics AI Platform API',
-            'version': '2.0.0',
-            'description': 'Production-grade backend API for educational platform',
+            'version': '3.0.0',
+            'description': 'Production-grade backend API for educational platform with AI tutoring',
             'documentation': '/api/docs',
+            'features': [
+                'AI-powered tutoring and chat',
+                'Class and course management',
+                'File upload and storage',
+                'Real-time notifications',
+                'Comprehensive analytics dashboard',
+                'Progress tracking and gamification'
+            ],
             'endpoints': {
-                'auth': '/auth',
-                'health': '/health',
-                'docs': '/api/docs'
+                'auth': '/api/auth',
+                'exercises': '/api/exercises',
+                'progress': '/api/progress',
+                'analytics': '/api/analytics',
+                'chat': '/api/chat',
+                'classes': '/api/classes',
+                'dashboard': '/api/dashboard',
+                'files': '/api/files',
+                'notifications': '/api/notifications',
+                'health': '/health'
             }
         }), 200
 

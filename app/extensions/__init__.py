@@ -9,7 +9,9 @@ from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_mail import Mail
+from flask_caching import Cache
 from flasgger import Swagger
+import os
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -18,6 +20,7 @@ cors = CORS()
 jwt = JWTManager()
 limiter = Limiter(key_func=get_remote_address)
 mail = Mail()
+cache = Cache()
 swagger = Swagger()
 
 # JWT blocklist for revoked tokens (in production, use Redis)
@@ -31,6 +34,29 @@ def init_extensions(app):
     jwt.init_app(app)
     limiter.init_app(app)
     mail.init_app(app)
+    
+    # Configure and initialize caching
+    cache_config = {
+        'CACHE_TYPE': 'SimpleCache',  # Default to simple in-memory cache
+        'CACHE_DEFAULT_TIMEOUT': 300
+    }
+    
+    # Use Redis if available
+    redis_url = os.getenv('REDIS_URL')
+    if redis_url and redis_url != 'memory://':
+        try:
+            cache_config.update({
+                'CACHE_TYPE': 'RedisCache',
+                'CACHE_REDIS_URL': redis_url,
+                'CACHE_KEY_PREFIX': 'eduplatform:'
+            })
+        except Exception:
+            # Fallback to simple cache if Redis fails
+            pass
+    
+    app.config.update(cache_config)
+    app.config['CACHE_ENABLED'] = True
+    cache.init_app(app)
     
     # Swagger configuration
     swagger_config = {
